@@ -9,15 +9,30 @@ function MyApp() {
    function updateList(person) {
       makePostCall(person).then( result => {
       if (result.status === 201)
-         setCharacters([...characters, person] );
+         setCharacters([...characters, result.data]);
       });
    }
 
-   function removeOneCharacter (index) {
-      const updated = characters.filter((character, i) => {
-         return i !== index
-      });
-      setCharacters(updated);
+   async function removeOneCharacter (index) {
+
+      try {
+         const response = await axios.get('http://localhost:5000/users');
+         const urlToDelete = 'http://localhost:5000/users/' + response.data.users_list[index].id;
+         const responseDel = await axios.delete(urlToDelete);
+         
+         const updated = characters.filter((character, i) => {
+            return i !== index
+         });
+         setCharacters(updated);
+         
+         return responseDel;
+      }
+      catch (error){
+         //We're not handling errors. Just logging into the console.
+         console.log(error);
+         return false;
+      }
+
    }
 
    async function fetchAll(){
